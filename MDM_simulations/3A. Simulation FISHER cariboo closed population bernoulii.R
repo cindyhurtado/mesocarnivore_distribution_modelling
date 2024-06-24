@@ -35,7 +35,7 @@ init_simple <- function() {
 pars <- c("N","psi","p0.S","p0.O","sigma","Never")
 
 for(i in 1:nsims){
-  name.i <-"Columbian_RD_bern"
+  name.i <-"Cariboo_bern"
   #obj.i <- get(name.i)
   out.i <- paste("out.", stub, "_", i, sep = "")
   y <- Y.s # observed SCR data for first T
