@@ -19,9 +19,12 @@ qgamma(c(0.001,0.5,0.999),1, 0.001)  # 1.005 , 693.14, 6907.76
 
 (sqrt(141/pi)/1)/sqrt(5.99) # puntzi lake sigma 2730 m #2.737
 
-(sqrt(300/pi)/1)/sqrt(5.99) # assuming one male can have up to 5 female home ranges of 50km2, maximum HR could be 300km2 but unlikely # 3.99
+# (sqrt(300/pi)/1)/sqrt(5.99) # assuming one male can have up to 5 female home ranges of 50km2, maximum HR could be 300km2 but unlikely # 3.99
+
+(sqrt(225/pi)/1)/sqrt(5.99) # maximum home range of a male fisher observed in central BC, weir et al. 2009 #3.45
 
 qgamma(c(0.001,0.5,0.999),6, 4) #0.2767762 1.4175403 4.1136863
+
 
 # plot distribution 
 x <- seq(0.29,4.1, by =0.01)
