@@ -49,14 +49,14 @@ dTrapBinom_NoID = nimbleFunction(
 
 dTrapBinom = nimbleFunction(
   run = function(x = double(1), p = double(1), lam0 = double(), z = double(), 
-      nocc = double(1), detfn = character(0, default = "halfnormal"), log = integer(0, default = 0)){ #, detfn = character(0, default = "halfnormal")){
+      nocc = double(1), detfn = double(0, default = 1), log = integer(0, default = 0)){ #, detfn = character(0, default = "halfnormal")){
     returnType(double())
     if(z == 0){
       ans <- 0
     }else{
-      if(detfn == "halfnormal")
-        pobs <- p*lam0
-      if(detfn == "hazardhalfnormal")
+      if(detfn == 1) ## "halfnormal"
+      pobs <- p*lam0
+      if(detfn == 2) ## hazard halfnormal
         pobs <- 1-exp(-lam0*pobs)  ## This one is consistent with poisson halfnormal model.
         
       if(sum(x) == 0) {
@@ -95,7 +95,7 @@ scr_occ_model <- nimbleCode({
     p.O[i, 1:J.o] <- calcTrapDetection_HN(distsSquared = d2.o[i,1:J.o], sigma = sigma, z = z[i])
     
     ## p0 goes in here as it didn't impact that other part.
-    y[i,1:J.s] ~ dTrapBinom(p = p.S[i,1:J.s], lam0 = p0.S, nocc = nocc.s[1:J.s], z = z[i])
+    y[i,1:J.s] ~ dTrapBinom(p = p.S[i,1:J.s], lam0 = p0.S, nocc = nocc.s[1:J.s], z = z[i], detfn = 1)
   }#m
   
   for(j in 1:J.o) { #for every trap
@@ -107,7 +107,7 @@ scr_occ_model <- nimbleCode({
 ## This model input has counts instead of binomials
 scr_count_model <- nimbleCode({
   psi ~ dbeta(1, 1)    # M*psi = E[N(1)]
-  lam ~ dunif(0, 100)  ## removed p.O + p.S
+  lam ~ unif(0, 100)  ## removed p.O + p.S
   
   sigma ~ dgamma(6, 4) # followed burgar et. al. 2018 for calculations, 5 to 300km2
   N <- sum(z[])     # Number of females
@@ -126,7 +126,7 @@ scr_count_model <- nimbleCode({
     p.O[i, 1:J.o] <- calcTrapDetection_HN(distsSquared = d2.o[i,1:J.o], sigma = sigma, z = z[i])
     
     ## p0 goes in here as it didn't impact that other part.
-    y[i,1:J.s] ~ dTrapBinom(p = p.S[i,1:J.s], lam0 = lam, nocc = nocc.s[1:J.s], z= z[i], detfn = "hazardhalfnormal")
+    y[i,1:J.s] ~ dTrapBinom(p = p.S[i,1:J.s], lam0 = lam, nocc = nocc.s[1:J.s], z= z[i], detfn = 2)
   }#m
   
   ## This is Chandler and Royle 2013
