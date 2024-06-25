@@ -80,7 +80,7 @@ for(i in 1:M){
 
 ## Now compile model and mcmc into C++
 Rmcmc <- buildMCMC(conf)
-Cmodel <- compileNimble(Rmodel) ## didnt work
+Cmodel <- compileNimble(Rmodel) 
 Cmcmc <- compileNimble(Rmcmc, project = Rmodel)
 
 ## Just run mcmc locally and see how it does.

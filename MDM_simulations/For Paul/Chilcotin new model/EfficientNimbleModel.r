@@ -49,7 +49,7 @@ dTrapBinom_NoID = nimbleFunction(
 
 dTrapBinom = nimbleFunction(
   run = function(x = double(1), p = double(1), lam0 = double(), z = double(), 
-      nocc = double(1), log = integer(0, default = 0)){ #, detfn = character(0, default = "halfnormal")){
+      nocc = double(1), detfn = character(0, default = "halfnormal"), log = integer(0, default = 0)){ #, detfn = character(0, default = "halfnormal")){
     returnType(double())
     if(z == 0){
       ans <- 0
