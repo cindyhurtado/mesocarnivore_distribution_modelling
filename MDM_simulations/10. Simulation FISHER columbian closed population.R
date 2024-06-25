@@ -1,3 +1,4 @@
+### Fit various models for chilcotin subpopulation
 
 ##########################
 ### fit marginal closed model
@@ -13,15 +14,13 @@ start.time <- Sys.time()
 library(rjags)
 library(jagsUI)
 
-stub <- "omineca_bern_10k"
-nsims <- 1
-M <- 1500
+M <- 4500
 init_simple <- function() {
   zi <- matrix(0L, M, jdat.i$T)
   zi[1:M] <- 1 #  zi[1:(4* dim(y)[1])] <- 1 give 1's to indviduals who were detected by SCR
   sii <- apply(y, c(1,2), sum)
-  si <- cbind(runif(M, xlim[1], xlim[2]),
-              runif(M, ylim[1], ylim[2]))
+  si <- cbind(runif(M, xlims[1], xlims[2]),
+              runif(M, ylims[1], ylims[2]))
   for(i in 1:nrow(sii)) {
     si[i,1] <- mean(X.s[sii[i,] > 0, 1])
     si[i,2] <- mean(X.s[sii[i,] > 0, 2])
@@ -34,19 +33,19 @@ init_simple <- function() {
 pars <- c("N","psi","p0.S","p0.O","sigma","Never")
 
 for(i in 1:nsims){
-  name.i <-"omineca_RD_bern"
-  #obj.i <- get(name.i)
+  name.i <- paste("dat.", stub, "_", i, sep = "")
+  obj.i <- get(name.i)
   out.i <- paste("out.", stub, "_", i, sep = "")
-  y <- Y.s # observed SCR data for first T
+  y <- obj.i$y.s # observed SCR data for first T
   dim.y <- dim(y)
   y.orig <- array(0L, c(dim.y[1] + 1, dim.y[2], dim.y[3]))
   y.orig [1:nrow(y), , ] <-
     y # observed data augmented only with 1 row
-  O <- O.o
-  X.s <- as.matrix(X.s)
-  X.o <- as.matrix(X.o)
-  xlims <- xlim
-  ylims <- ylim
+  O <- obj.i$O.o[, , 1]
+  X.s <- as.matrix(obj.i$X.s)
+  X.o <- as.matrix(obj.i$X.o)
+  xlims <- obj.i$xlims
+  ylims <- obj.i$ylims
   jdat.i <- list(
     y.orig = y.orig,
     n = nrow(y.orig) - 1,
@@ -55,29 +54,28 @@ for(i in 1:nsims){
     #M=dim.y[1],
     J.s = dim.y[2],
     X.s = X.s,
-    J.o = dim(O)[1],
+    J.o = dim(O)[[1]],
     X.o = X.o,
     K = dim.y[3],
-    K.o= dim(O)[2],
     T = 1,
-    xlims = xlim,
-    ylims = ylim
+    xlims = xlims,
+    ylims = ylims
   )
   out <-
     jags(
-      "margSingle_IM_fisher7.JAG",
+      "margSingle_IM_fisher.JAG",
       data = jdat.i,
       inits = init_simple,
-      parallel = TRUE, n.cores= 10,
+      parallel = TRUE, n.cores= 2,
       n.chains = 3,
       n.burnin = 3000,
       n.adapt = 1000,
-      n.iter = 10000,
+      n.iter = 5000,
       parameters.to.save = pars
     )
   assign(out.i, out)
-  save(list = out.i, file = paste(out.i, "omineca_RD_bern_10k.Rdata", sep = ""))
-  rm(name.i, out.i, out)
+  save(list = out.i, file = paste(out.i, "columbian_10k.Rdata", sep = ""))
+  rm(name.i, obj.i, out.i, out)
 }
 
 end.time <- Sys.time()

@@ -13,7 +13,7 @@ start.time <- Sys.time()
 library(rjags)
 library(jagsUI)
 
-stub <- "omineca_bern_10k"
+stub <- "omineca_bern"
 nsims <- 1
 M <- 1500
 init_simple <- function() {
@@ -34,7 +34,7 @@ init_simple <- function() {
 pars <- c("N","psi","p0.S","p0.O","sigma","Never")
 
 for(i in 1:nsims){
-  name.i <-"omineca_RD_bern"
+  name.i <-"Columbian_RD_bern"
   #obj.i <- get(name.i)
   out.i <- paste("out.", stub, "_", i, sep = "")
   y <- Y.s # observed SCR data for first T
@@ -72,11 +72,11 @@ for(i in 1:nsims){
       n.chains = 3,
       n.burnin = 3000,
       n.adapt = 1000,
-      n.iter = 10000,
+      n.iter = 5000,
       parameters.to.save = pars
     )
   assign(out.i, out)
-  save(list = out.i, file = paste(out.i, "omineca_RD_bern_10k.Rdata", sep = ""))
+  save(list = out.i, file = paste(out.i, "omineca_RD_bern.Rdata", sep = ""))
   rm(name.i, out.i, out)
 }
 

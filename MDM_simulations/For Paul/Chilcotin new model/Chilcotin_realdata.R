@@ -71,16 +71,16 @@ for(i in 1:nsims){
       "margSingle_IM_fisher_paul.JAG",
       data = jdat.i,
       inits = init_simple,
-      parallel = TRUE, n.cores= 10,
+      parallel = TRUE, n.cores= 5,
       n.chains = 3,
-      n.burnin = 30,
-      n.adapt = 10,
-      n.iter = 50,
+      n.burnin = 3000,
+      n.adapt = 1000,
+      n.iter = 5000,
       parameters.to.save = pars
     )
   assign(out.i, out)
-  save(list = out.i, file = paste(out.i, "Chilcotin_RD", sep = ""))
-  rm(name.i, obj.i, out.i, out)
+  save(list = out.i, file = paste(out.i, "Chilcotin_RD_VM", sep = ""))
+  rm(name.i, out.i, out)
 }
 
 end.time <- Sys.time()
