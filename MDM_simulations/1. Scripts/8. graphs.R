@@ -11,10 +11,10 @@ library(miceadds)
 
 load("C:/LocalR/mesocarnivore_distribution_modelling/MDM_simulations/omineca_realdata_NA_OS.RData")
 
-traceplot(out.Omineca_1 ,param= c("p0.S", "N", "p0.O", "psi", "sigma"))
+traceplot(out.omineca_bern_1 ,param= c("p0.S", "N", "p0.O", "psi", "sigma"))
 
-traceplot(out.Omineca_1 ,param= "N")
-whiskerplot(out.Omineca_1, parameters = c("N"))
+traceplot(out.omineca_bern_1 ,param= "N")
+whiskerplot(out.omineca_bern_1, parameters = c("N"))
 
 N.df <- as.data.frame(out.Omineca_1$sims.list$N)
 colnames(N.df) <- "N"
