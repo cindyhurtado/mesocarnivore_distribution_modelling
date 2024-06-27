@@ -5,6 +5,7 @@
 ##########################
 
 #set working directory to where the file MargSingle_IM_fisher.JAG is saved
+setwd("C:/LocalR/mesocarnivore_distribution_modelling/MDM_simulations")
 
 start.time <- Sys.time()
 
@@ -30,7 +31,7 @@ init_simple <- function() {
 pars <- c("N","psi","p0.S","p0.O","sigma","Never")
 
 for(i in 1:nsims){
-  name.i <- paste("dat.chilcotin_", stub, "_", i, sep = "")
+  name.i <- paste("dat.", stub, "_", i, sep = "")
   obj.i <- get(name.i)
   out.i <- paste("out.", stub, "_", i, sep = "")
   y <- obj.i$y.s # observed SCR data for first T
@@ -62,15 +63,15 @@ for(i in 1:nsims){
       "margSingle_IM_fisher.JAG",
       data = jdat.i,
       inits = init_simple,
-      parallel = TRUE, n.cores= 28,
+      parallel = TRUE, n.cores= 7,
       n.chains = 3,
-      n.burnin = 500,
-      n.adapt = 800,
-      n.iter = 3000,
+      n.burnin = 3000,
+      n.adapt = 1000,
+      n.iter = 5000,
       parameters.to.save = pars
     )
   assign(out.i, out)
-  save(list = out.i, file = paste(out.i, "simulations_3k.Rdata", sep = ""))
+  save(list = out.i, file = paste(out.i, "scenario3_hair_cam.Rdata", sep = ""))
   rm(name.i, obj.i, out.i, out)
 }
 
