@@ -1,0 +1,46 @@
+
+data{
+  for(i in 1:n){
+    for(j in 1:J.s){
+        y[i,j]<-y.orig[i,j]
+      }}
+  for(i in (n+1):M){
+    for(j in 1:J.s){
+        y[i,j]<-y.orig[n+1,j]
+      }} 
+}
+model{
+  psi ~ dbeta(1,1)    # M*psi = E[N(1)]
+  p0.S ~ dbeta(1,1)
+  p0.O ~ dbeta(1,1)
+  
+  sigma ~ dgamma(6, 4) # followed burgar et. al. 2018 for calculations, 5 to 300km2
+  sigma2sq <- 2*sigma^2 # reduce the number of times this is computed.
+  N <- sum(z[])     # Number of females
+  
+  for(i in 1:M) {
+    z[i] ~ dbern(psi)
+
+    s[i,1] ~ dunif(xlims[1], xlims[2])
+    s[i,2] ~ dunif(ylims[1], ylims[2])
+
+    for(j in 1:J.s) {
+      d2.s[i,j] <- (s[i,1]-X.s[j,1])^2 + (s[i,2]-X.s[j,2])^2
+      p.S[i,j] <- p0.S*exp(-d2.s[i,j] / sigma2sq)
+    }
+    for(j in 1:J.o) {
+      d2.o[i,j] <- (s[i,1]-X.o[j,1])^2 + (s[i,2]-X.o[j,2])^2
+      p.O[i,j] <- p0.O*exp(-d2.o[i,j] / sigma2sq)
+    }
+    
+    for(j in 1:J.s) {
+      y[i,j] ~ dbinom(p.S[i,j]*z[i], nocc.s[j]) ## *** Make this binomial.
+    }#j.s
+  }#m
+  for(j in 1:J.o) { #for every trap
+      logpn[j] <- sum(log(1-p.O[1:M,j]*z[1:M])) ## Might be a bit more stable than a product for small values.
+      pn[j] <- 1-exp(logpn[j])
+      O[j]~ dbinom(pn[j], nocc.o[j]) ## *** Make this binomial. provide nocc for each of these camera traps.
+    }#j.o
+  }#m
+

@@ -1,0 +1,82 @@
+
+data{
+  for(i in 1:n){
+    for(j in 1:J.s){
+      for (k in 1:K){ 
+        y[i,j,k,1]<-y.orig[i,j,k,1]
+        y[i,j,k,2]<-y.orig[i,j,k,2]
+        y[i,j,k,3]<-y.orig[i,j,k,3]
+        y[i,j,k,4]<-y.orig[i,j,k,4]
+      }}}
+  for(i in (n+1):M){
+    for(j in 1:J.s){
+      for (k in 1:K){
+        y[i,j,k,1]<-y.orig[n+1,j,k,1]
+        y[i,j,k,2]<-y.orig[n+1,j,k,2]
+        y[i,j,k,3]<-y.orig[n+1,j,k,3]
+        y[i,j,k,4]<-y.orig[n+1,j,k,4]
+      }}} 
+}
+
+model{ 
+  psi ~ dbeta(1,1)  # M*psi = E[N(1)]
+  phi ~ dbeta(1,1)  # survival
+  gamma ~ dgamma(1, 0.001) 
+  p0.S ~ dbeta(1,1)
+  p0.O ~ dbeta(1,1)
+  sigma ~ dgamma(1, 0.001)
+  for(t in 1:T) { #(T-1)) {
+    N[t] <- sum(z[,t])  
+    b[t] <- min(N[t]*gamma / max(M - sum(a[,t]), 0.001), 0.999)
+  } 
+  for(i in 1:M) {
+    z[i,1] ~ dbern(psi)
+    a[i,1] <- z[i,1] # recruited yet?
+    s[i,1] ~ dunif(xlims[1], xlims[2])
+    s[i,2] ~ dunif(ylims[1], ylims[2])
+    for(j in 1:J.s) {
+      d2.s[i,j] <- (s[i,1]-X.s[j,1])^2 + (s[i,2]-X.s[j,2])^2
+      p.S[i,j] <- p0.S*exp(-d2.s[i,j] / (2*sigma^2))
+    }
+    for(j in 1:J.o) {
+      for (t in 1:T){
+        d2.o[i,j,t] <- (s[i,1]-X.o[j,1])^2 + (s[i,2]-X.o[j,2])^2
+        p.O[i,j,t] <- p0.O*exp(-d2.o[i,j,t] / (2*sigma^2))
+      }
+    } 
+    for(j in 1:J.s) {
+      for(k in 1:K) {
+        # years with SCR data
+        y[i,j,k,1] ~ dbern(p.S[i,j]*z[i,1])
+        y[i,j,k,2] ~ dbern(p.S[i,j]*z[i,2])
+        y[i,j,k,3] ~ dbern(p.S[i,j]*z[i,3])
+        y[i,j,k,4] ~ dbern(p.S[i,j]*z[i,4])
+      } #k
+    }#j.s
+    for(j in 1:J.o){
+      for (k in 1:K){
+        y.pa[i,j,k,1] ~ dbern(p.O[i,j,1]*z[i,1])
+        y.pa[i,j,k,2] ~ dbern(p.O[i,j,2]*z[i,2])
+        y.pa[i,j,k,3] ~ dbern(p.O[i,j,3]*z[i,3])
+        y.pa[i,j,k,4] ~ dbern(p.O[i,j,4]*z[i,4]) 
+      }#k
+    }#j.o
+    zi[i] <- (sum(z[i,]) > 0) # Was this bear ever alive?
+    for(t in 2:T) {
+      mu[i,t-1] <- z[i,t-1]*phi + (1 - a[i,t-1])*b[t-1]
+      z[i,t] ~ dbern(mu[i,t-1])
+      a[i,t] <- max(z[i,1:t]) # recruited yet?
+    }
+  }#m
+  cuts[1]<-0.9 
+  cuts[2]<-999 # if C>0.9 and <999, then O=1
+  for (j in 1:J.o){
+    for (k in 1:K){
+      for (t in 1:4){
+        C[j,k,t] <- sum(y.pa[,j,k,t]) # counts by trap
+        O[j,k,t] ~ dinterval(C[j,k,t],cuts) #pa data
+      }
+    }
+  } 
+  Never <- sum(zi[]) # Bears ever alive
+}
