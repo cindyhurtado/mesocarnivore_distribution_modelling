@@ -7,6 +7,7 @@ library(grid)
 library(gridExtra)
 library(miceadds)
 library(dotwhisker)
+library(coda)
 #omineca model
 
 
@@ -44,7 +45,7 @@ for(i in 1:length(outputs)) {
 
 #confidence interval 1.28*SD
 
-names(N.df_RD) <- c("Cariboo", "Chilcotin","Omineca10", "Omineca")
+names(N.df_RD) <- c("Cariboo10", "Cariboo", "Chilcotin","Omineca10", "Omineca")
 
 N.df_allRD <- purrr::map_df(N.df_RD, data.frame, .id = 'name') ## comparison 
 N.df_allRD$group <- paste(N.df_allRD$name)
@@ -58,10 +59,14 @@ RD_simulations2 <- ggplot(N.df_allRD, aes(x = group, y= X50.))+ geom_point() + g
 RD_simulations +scale_y_continuous(name="Pop. estimate", limits=c(0, 1500))
 RD_simulations2 +scale_y_continuous(name="Pop. estimate", expand = c(0, 0), breaks = seq(0, 1500, by = 300), limits=c(0, 1500))
 
+jagsUI::traceplot(out.cariboo_bern_10k_1 ,param= c("p0.S", "N", "p0.O", "psi", "sigma"))
 traceplot(out.cariboo_bern_1 ,param= c("p0.S", "N", "p0.O", "psi", "sigma"))
 traceplot(out.chilcotin_bern_1 ,param= c("p0.S", "N", "p0.O", "psi", "sigma"))
 traceplot(out.omineca_bern_10k_1,param= c("p0.S", "N", "p0.O", "psi", "sigma"))
 traceplot(out.omineca_bern_1 ,param= c("p0.S", "N", "p0.O", "psi", "sigma"))
+
+traceplot(outputs[[1]] ,param= c("N"))
+
 
 #3. Graphs psi 
 
