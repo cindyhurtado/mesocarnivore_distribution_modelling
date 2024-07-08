@@ -7,13 +7,13 @@
 #.libPaths('C:/Users/CHURTADO/AppData/R') # this is a new path
 #.libPaths('C:/Users/CHURTADO/AppData/Local/R/win-library/4.3') 
 
-setwd("C:/LocalR/mesocarnivore_distribution_modelling/MDM_simulations")
+setwd("C:/LocalR/mesocarnivore_distribution_modelling/Fisher models/1. Scripts")
 start.time <- Sys.time()
 
 library(rjags)
 library(jagsUI)
 
-stub <- "cariboo_bern"
+stub <- "cariboo_bern_15k"
 nsims <- 1
 
 M <- 1500
@@ -69,15 +69,15 @@ for(i in 1:nsims){
       "margSingle_IM_fisher7.JAG",
       data = jdat.i,
       inits = init_simple,
-      parallel = TRUE, n.cores= 10,
+      parallel = TRUE, n.cores= 5,
       n.chains = 3,
-      n.burnin = 3000,
+      n.burnin = 7000,
       n.adapt = 1000,
-      n.iter = 5000,
+      n.iter = 15000,
       parameters.to.save = pars
     )
   assign(out.i, out)
-  save(list = out.i, file = paste(out.i, "cariboo_RD_bern.Rdata", sep = ""))
+  save(list = out.i, file = paste(out.i, "cariboo_RD_bern_15k.Rdata", sep = ""))
   rm(name.i, out.i, out)
 }
 

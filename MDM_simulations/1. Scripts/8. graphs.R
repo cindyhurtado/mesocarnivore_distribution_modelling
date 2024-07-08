@@ -45,7 +45,7 @@ for(i in 1:length(outputs)) {
 
 #confidence interval 1.28*SD
 
-names(N.df_RD) <- c("Cariboo10", "Cariboo", "Chilcotin","Omineca10", "Omineca")
+names(N.df_RD) <- c("Cariboo10", "Cariboo", "Chilcotin10","Chilcotin", "Omineca10", "Omineca")
 
 N.df_allRD <- purrr::map_df(N.df_RD, data.frame, .id = 'name') ## comparison 
 N.df_allRD$group <- paste(N.df_allRD$name)
